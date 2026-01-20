@@ -1,0 +1,5 @@
+requests
+pandas
+websockets
+psycopg2-binary
+prefect
