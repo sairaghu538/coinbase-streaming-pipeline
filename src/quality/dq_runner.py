@@ -191,12 +191,12 @@ def print_results(results: List[Dict[str, Any]]):
     passed = [r for r in results if r["passed"]]
     failed = [r for r in results if not r["passed"]]
     
-    print(f"\n✅ PASSED: {len(passed)}/{len(results)}")
+    print(f"\n[PASSED] {len(passed)}/{len(results)}")
     for r in passed:
         print(f"   • {r['check_name']}: {r['details']}")
     
     if failed:
-        print(f"\n❌ FAILED: {len(failed)}/{len(results)}")
+        print(f"\n[FAILED] {len(failed)}/{len(results)}")
         for r in failed:
             print(f"   • {r['check_name']}: {r['details']}")
             if r.get("error"):
