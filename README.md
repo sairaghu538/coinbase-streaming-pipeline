@@ -203,11 +203,14 @@ prefect server start  # Terminal 1
 python src/orchestration/prefect_flow.py  # Terminal 2
 ```
 
-### 6. Check Data Quality
+### 7. Visualize in Power BI
 
-```bash
-python src/quality/dq_runner.py
-```
+1. Open Power BI Desktop
+2. Connect to `localhost:3307` / `crypto_dw`
+3. Drag `gold.ohlc_1m` fields onto the canvas:
+   - **Line Chart**: `bucket_1m` (X-axis) vs `close` (Y-axis)
+   - **Bar Chart**: `bucket_1m` (X-axis) vs `volume` (Y-axis)
+   - **Slicer**: `product_id`
 
 ## 📈 Key Metrics & KPIs
 
@@ -283,3 +286,4 @@ MIT License - feel free to use this for learning and portfolio purposes.
 ---
 
 **Built as a portfolio project demonstrating real-world data engineering skills.**
+**Status: ✅ COMPLETED (Feb 2026)**
