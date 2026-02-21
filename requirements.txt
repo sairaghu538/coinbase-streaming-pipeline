@@ -7,4 +7,5 @@ fastapi
 uvicorn[standard]
 streamlit
 plotly
+altair>=5
 python-dotenv
