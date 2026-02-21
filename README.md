@@ -3,8 +3,9 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg)](https://www.postgresql.org/)
 [![Prefect](https://img.shields.io/badge/Prefect-2.x-blue.svg)](https://www.prefect.io/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Live_Demo-ff4b4b.svg)](https://sairaghu538-coinbase-streaming-pipeline.streamlit.app)
 
-A real-time data engineering pipeline that ingests streaming cryptocurrency trade data from Coinbase, implements a **Medallion Architecture** in PostgreSQL, and delivers analytics-ready datasets for business intelligence.
+A real-time data engineering pipeline that ingests streaming cryptocurrency trade data from Coinbase, implements a **Medallion Architecture** in PostgreSQL, and delivers analytics-ready datasets with **two dashboard options**: a premium React + FastAPI local dashboard and a Streamlit Cloud live demo.
 
 ## 🎯 Project Overview
 
@@ -15,7 +16,8 @@ This project demonstrates production-grade data engineering practices:
 - **Incremental, idempotent transformations**
 - **Data quality checks and monitoring**
 - **Pipeline orchestration** with Prefect
-- **BI-ready datasets** for Power BI / Metabase
+- **Full-stack dashboard** (React + FastAPI) for local visualization
+- **Streamlit Cloud dashboard** for live online demo
 
 ## 📊 Architecture
 
@@ -52,7 +54,9 @@ flowchart LR
     end
     
     subgraph Visualization
-        BI["Power BI /\nMetabase"]
+        API["FastAPI\nREST API"]
+        REACT["React\nDashboard"]
+        STREAMLIT["Streamlit\nCloud"]
     end
     
     WS --> PY
@@ -66,32 +70,49 @@ flowchart LR
     PREFECT --> CLEAN
     PREFECT --> OHLC
     DQ --> CLEAN
-    OHLC --> BI
-    KPI --> BI
+    OHLC --> API
+    KPI --> API
+    API --> REACT
+    OHLC --> STREAMLIT
+    KPI --> STREAMLIT
 ```
 
 ## 🗂 Project Structure
 
 ```
 coinbase-streaming-pipeline/
+├── api/                               # FastAPI REST backend
+│   ├── main.py                        # App entry point (CORS, routing)
+│   ├── database.py                    # PostgreSQL connection
+│   └── routes.py                      # API endpoints (OHLC, KPIs)
+├── dashboard/                         # React (Vite) frontend
+│   ├── src/
+│   │   ├── App.jsx                    # Main dashboard layout
+│   │   ├── index.css                  # Glassmorphism dark theme
+│   │   └── components/
+│   │       ├── CandlestickChart.jsx   # TradingView-style chart
+│   │       ├── PriceTicker.jsx        # Animated price cards
+│   │       ├── KPICards.jsx           # VWAP, Volume, High/Low
+│   │       ├── VolumeChart.jsx        # Volume bar chart
+│   │       └── PipelineStatus.jsx     # Pipeline health
+│   └── package.json
 ├── sql/
-│   ├── 001_create_schemas.sql    # Bronze/Silver/Gold schemas
-│   └── 002_create_tables.sql     # All table definitions
+│   ├── 001_create_schemas.sql         # Bronze/Silver/Gold schemas
+│   └── 002_create_tables.sql          # All table definitions
 ├── src/
 │   ├── ingest/
-│   │   └── coinbase_ws_to_bronze.py  # WebSocket streaming ingestion
+│   │   └── coinbase_ws_to_bronze.py   # WebSocket streaming ingestion
 │   ├── transform/
-│   │   ├── bronze_to_silver.sql      # JSON → typed records
-│   │   └── silver_to_gold.sql        # Aggregations & KPIs
+│   │   ├── bronze_to_silver.sql       # JSON → typed records
+│   │   └── silver_to_gold.sql         # Aggregations & KPIs
 │   ├── quality/
-│   │   ├── dq_checks.sql             # DQ check definitions
-│   │   └── dq_runner.py              # DQ execution & alerting
+│   │   ├── dq_checks.sql              # DQ check definitions
+│   │   └── dq_runner.py               # DQ execution & alerting
 │   └── orchestration/
-│       └── prefect_flow.py           # Pipeline orchestration
-├── dashboards/
-│   └── powerbi_model_notes.md        # BI setup documentation
+│       └── prefect_flow.py            # Pipeline orchestration
+├── data/                              # CSV snapshots for Streamlit Cloud
+├── app.py                             # Streamlit dashboard (live demo)
 ├── .env.example                       # Environment template
-├── .gitignore
 ├── requirements.txt
 └── README.md
 ```
@@ -203,14 +224,29 @@ prefect server start  # Terminal 1
 python src/orchestration/prefect_flow.py  # Terminal 2
 ```
 
-### 7. Visualize in Power BI
+### 6. Launch Dashboards
 
-1. Open Power BI Desktop
-2. Connect to `localhost:3307` / `crypto_dw`
-3. Drag `gold.ohlc_1m` fields onto the canvas:
-   - **Line Chart**: `bucket_1m` (X-axis) vs `close` (Y-axis)
-   - **Bar Chart**: `bucket_1m` (X-axis) vs `volume` (Y-axis)
-   - **Slicer**: `product_id`
+**Option A: React Dashboard (Premium UI)**
+
+```bash
+# Terminal 1: FastAPI backend
+python -m uvicorn api.main:app --reload --port 8000
+
+# Terminal 2: React frontend
+cd dashboard && npm install && npm run dev
+```
+
+Open http://localhost:5173 for the full TradingView-style dashboard.
+
+**Option B: Streamlit Dashboard**
+
+```bash
+streamlit run app.py
+```
+
+Open http://localhost:8501 for the Streamlit version.
+
+**Live Demo**: [Streamlit Cloud](https://sairaghu538-coinbase-streaming-pipeline.streamlit.app)
 
 ## 📈 Key Metrics & KPIs
 
@@ -241,7 +277,9 @@ python src/orchestration/prefect_flow.py  # Terminal 2
 | **Storage** | PostgreSQL | JSONB, Window functions, Production-grade |
 | **Transforms** | SQL | Simple, maintainable, version-controlled |
 | **Orchestration** | Prefect | Local-first, retries, logging |
-| **BI** | Power BI Desktop | Free, connects to Postgres |
+| **API Layer** | FastAPI | High-performance Python REST API |
+| **Frontend** | React + Vite + TradingView | Premium candlestick charts, glassmorphism UI |
+| **Live Demo** | Streamlit + Plotly | Free cloud deployment, interactive charts |
 
 ## 📋 Design Decisions
 
@@ -273,6 +311,8 @@ python src/orchestration/prefect_flow.py  # Terminal 2
 
 ## 🔮 Future Enhancements
 
+- [x] Full-stack React + FastAPI dashboard
+- [x] Streamlit Cloud live demo
 - [ ] Add REST API ingestion for product metadata
 - [ ] Implement late-arriving data handling
 - [ ] Add Slack alerting for DQ failures
