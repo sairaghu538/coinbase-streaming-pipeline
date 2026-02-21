@@ -19,6 +19,12 @@ This project demonstrates production-grade data engineering practices:
 - **Full-stack dashboard** (React + FastAPI) for local visualization
 - **Streamlit Cloud dashboard** for live online demo
 
+## 📸 Live Dashboard
+
+![Crypto Dashboard](docs/dashboard_screenshot.png)
+
+> **[▶ View Live Demo](https://coinbase-streaming.streamlit.app)** — Real-time crypto prices, candlestick charts, and pipeline metrics
+
 ## 📊 Architecture
 
 ```mermaid
