@@ -3,3 +3,5 @@ pandas
 websockets
 psycopg2-binary
 prefect
+fastapi
+uvicorn[standard]

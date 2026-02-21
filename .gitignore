@@ -6,6 +6,10 @@ __pycache__/
 # Env
 .env
 
+# Node / React
+dashboard/node_modules/
+dashboard/dist/
+
 # OS
 .DS_Store
 Thumbs.db
