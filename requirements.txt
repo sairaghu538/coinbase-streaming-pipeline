@@ -5,3 +5,6 @@ psycopg2-binary
 prefect
 fastapi
 uvicorn[standard]
+streamlit
+plotly
+python-dotenv
